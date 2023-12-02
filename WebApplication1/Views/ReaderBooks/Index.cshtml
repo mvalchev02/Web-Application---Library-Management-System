@@ -1,0 +1,82 @@
+﻿@model X.PagedList.IPagedList<WebApplication1.Models.ReaderBook>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<form asp-action="Index" method="get">
+    <div class="form-group">
+        <label for="readerName">Reader Name:</label>
+        <input type="text" name="readerName" value="@ViewBag.ReaderName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="genre">Genre:</label>
+        <input type="text" name="genre" value="@ViewBag.Genre" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<p>Filtered by Reader: @ViewBag.ReaderName, Genre: @ViewBag.Genre</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Livre.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Lecteur.Name)
+            </th>
+            <th>
+                <a href="@Url.Action("Index", new { sortOrder = ViewBag.BookGetSortParam })">
+                    @Html.DisplayNameFor(model => model.First().BookGet)
+                </a>
+            </th>
+            <th>
+                <a href="@Url.Action("Index", new { sortOrder = ViewBag.BookReturnSortParam })">
+                    @Html.DisplayNameFor(model => model.First().BookReturn)
+                </a>
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Livre.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lecteur.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookGet)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookReturn)
+                </td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new
+{
+    page,
+    sortOrder = ViewBag.CurrentSort,
+    currentFilter = ViewBag.CurrentFilter
+}))
