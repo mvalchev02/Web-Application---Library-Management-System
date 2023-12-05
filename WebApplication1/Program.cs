@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using WebApplication1.Data;
 using WebApplication1.Models;
 
 namespace WebApplication1
 {
     public class Program
-    {
+    { 
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -32,11 +33,10 @@ namespace WebApplication1
             options.UseSqlServer(connectionnnnString));
 
 
-
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            builder.Services.AddControllersWithViews();
 
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -51,6 +51,7 @@ namespace WebApplication1
                 app.UseHsts();
             }
 
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -63,8 +64,10 @@ namespace WebApplication1
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
-
             app.Run();
+
         }
+
+
     }
 }

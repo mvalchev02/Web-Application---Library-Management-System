@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
+using X.PagedList;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApplication1.Controllers
@@ -21,10 +23,22 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? page)
         {
             try
             {
+                ViewBag.CurrentSort = sortOrder;
+                
+                if(searchString != null)
+                {
+                    page = 1;
+                }
+                else
+                {
+                    searchString = currentFilter;
+                }
+                ViewBag.CurrentFilter = searchString;
+
                 // Проверка за текущия ред на сортиране
                 bool isSortOrderDesc = string.Equals(sortOrder, "price_desc", StringComparison.OrdinalIgnoreCase);
 
@@ -52,7 +66,13 @@ namespace WebApplication1.Controllers
                 // Запазване на текущия филтър
                 ViewBag.CurrentFilter = searchString;
 
-                return View(books);
+                var pageNumber = page ?? 1;
+                var pageSize = 3;
+
+                var pagedList = await books.ToPagedListAsync(pageNumber, pageSize);
+
+
+                return View(pagedList);
 
             }
             catch (Exception ex)
@@ -67,6 +87,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Books/Details/5
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Books == null)
@@ -85,6 +106,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Books/Create
+
         public IActionResult Create()
         {
             return View();
@@ -107,6 +129,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Books/Edit/5
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Books == null)
@@ -127,6 +150,7 @@ namespace WebApplication1.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Price,Author,Genre,Released")] Books books)
         {
             if (id != books.Id)
@@ -158,6 +182,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Books/Delete/5
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Books == null)
@@ -178,6 +203,7 @@ namespace WebApplication1.Controllers
         // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Books == null)

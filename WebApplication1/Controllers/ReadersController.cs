@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Humanizer.Localisation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Net.Http.Headers;
 using WebApplication1.Models;
+using X.PagedList;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApplication1.Controllers
@@ -20,41 +23,66 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Readers
-        public async Task<IActionResult> Index(string sortOrder)
+        public async Task<IActionResult> Index(string sortOrder, string searchcString, string currentFilter, int? page)
         {
             try
             {
+                ViewBag.CurrentSort = sortOrder;
+
+                if (searchcString != null)
+                {
+                    page = 1;
+                }
+                else
+                {
+                    searchcString = currentFilter;
+                }
+
+                ViewBag.CurrentFilter = searchcString;
                 // Проверка за текущия ред на сортиране
                 bool isSortOrderDesc = string.Equals(sortOrder, "name_desc", StringComparison.OrdinalIgnoreCase);
 
                 // Превключване на реда на сортиране при повторно натискане
                 ViewBag.NameSortParam = isSortOrderDesc ? "name_asc" : "name_desc";
 
-                var readers = _context.Readers.ToList();
+                var readersDbContext = _context.Readers.AsQueryable();
+
+                // Филтриране по searchcString
+                if (!string.IsNullOrEmpty(searchcString))
+                {
+                    readersDbContext = readersDbContext.Where(b => b.Name.Contains(searchcString));
+                }
 
                 // Използвайте новата променлива за проверка на реда на сортиране
                 switch (ViewBag.NameSortParam)
                 {
                     case "name_desc":
-                        readers = readers.OrderByDescending(b => b.Name).ToList();
+                        readersDbContext = readersDbContext.OrderByDescending(b => b.Name);
                         break;
                     default:
-                        readers = readers.OrderBy(b => b.Name).ToList();
+                        readersDbContext = readersDbContext.OrderBy(b => b.Name);
                         break;
                 }
 
-                return View(readers);
+                var pageNumber = page ?? 1;
+                var pageSize = 3;
+
+                var pagedList = await readersDbContext.ToPagedListAsync(pageNumber, pageSize);
+
+                return View(pagedList);
             }
             catch (Exception ex)
             {
                 return _context.Readers != null ?
-                          View(await _context.Readers.ToListAsync()) :
-                          Problem("Entity set 'BooksDbContext.Books'  is null.");
+                    View(await _context.Readers.ToListAsync()) :
+                    Problem("Entity set 'BooksDbContext.Books' is null.");
             }
         }
 
-            // GET: Readers/Details/5
-            public async Task<IActionResult> Details(int? id)
+
+
+        // GET: Readers/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Readers == null)
             {
