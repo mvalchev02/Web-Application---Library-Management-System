@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using Humanizer.Localisation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,11 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using WebApplication1.Models;
 using X.PagedList;
+
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace WebApplication1.Controllers
 {
-    public class ReadersController : Controller
+    [Authorize(Roles ="Admin")]
+    public class ReadersController : Microsoft.AspNetCore.Mvc.Controller
     {
         private readonly ReadersDbContext _context;
 
@@ -108,9 +111,9 @@ namespace WebApplication1.Controllers
         // POST: Readers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Age,FavoriteGenres")] Readers readers)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Microsoft.AspNetCore.Mvc.Bind("Id,Name,Age,FavoriteGenres")] Readers readers)
         {
             if (ModelState.IsValid)
             {
@@ -140,9 +143,9 @@ namespace WebApplication1.Controllers
         // POST: Readers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Age,FavoriteGenres")] Readers readers)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Microsoft.AspNetCore.Mvc.Bind("Id,Name,Age,FavoriteGenres")] Readers readers)
         {
             if (id != readers.Id)
             {
@@ -191,8 +194,8 @@ namespace WebApplication1.Controllers
         }
 
         // POST: Readers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("Delete")]
+        [Microsoft.AspNetCore.Mvc.ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Readers == null)

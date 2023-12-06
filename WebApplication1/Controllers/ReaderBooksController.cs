@@ -9,9 +9,11 @@ using Sitecore.FakeDb;
 using WebApplication1.Models;
 using PagedList;
 using X.PagedList;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Roles="Admin")]
     public class ReaderBooksController : Controller
     {
         private readonly ReaderBookDbContext _context;
